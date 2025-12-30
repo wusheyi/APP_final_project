@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, 
 import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
+import { getNotificationScreenStyles } from '../styles/NotificationScreenStyles';
+
 export default function NotificationScreen({ navigation, route }) {
     // We try to access user from route params. 
     // In Drawer + Tab nesting, params might be deep. 
@@ -17,7 +19,7 @@ export default function NotificationScreen({ navigation, route }) {
 
     const { user } = route.params || {};
     const { theme } = useTheme();
-    const styles = getStyles(theme);
+    const styles = getNotificationScreenStyles(theme);
 
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -144,66 +146,3 @@ export default function NotificationScreen({ navigation, route }) {
         </View>
     );
 }
-
-const getStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-    },
-    list: {
-        padding: theme.spacing.m,
-    },
-    center: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    card: {
-        backgroundColor: theme.colors.card,
-        padding: theme.spacing.m,
-        borderRadius: theme.borderRadius.m,
-        marginBottom: theme.spacing.m,
-        ...theme.styles.shadow,
-    },
-    headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: theme.spacing.s,
-    },
-    badge: {
-        backgroundColor: theme.colors.error,
-        color: '#fff',
-        fontSize: 12,
-        fontWeight: 'bold',
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 4,
-        overflow: 'hidden',
-    },
-    time: {
-        color: theme.colors.textSecondary,
-        fontSize: 12,
-    },
-    title: {
-        ...theme.typography.h3,
-        color: theme.colors.text,
-        marginBottom: 4,
-    },
-    subtitle: {
-        color: theme.colors.textSecondary,
-        fontSize: 14,
-        marginBottom: 8,
-    },
-    actionText: {
-        color: theme.colors.primary,
-        fontSize: 12,
-        fontWeight: 'bold',
-        textAlign: 'right',
-    },
-    emptyText: {
-        color: theme.colors.textSecondary,
-        fontSize: 16,
-    }
-});

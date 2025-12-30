@@ -3,19 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ActivityInd
 import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
+import { useAuth } from '../context/AuthContext';
+
+import { getSettingsScreenStyles } from '../styles/SettingsScreenStyles';
+
 export default function SettingsScreen({ route }) {
-    // We expect 'user' to be passed via initialParams or context, 
-    // but in Tab navigation, params might need careful handling. 
-    // For now, let's assume we store user in a global context or pass it down. 
-    // To simplify this refactor, we'll accept user from route params if available, 
-    // or we might need a UserContext. For this step, we'll rely on route params 
-    // passed from App.js structure.
-
-    // NOTE: In a real app, UserContext is better. Here we will try to read from route.params.user
-    // If not found, we might need to re-login.
-    const { user } = route.params || {};
-
+    const { user, updateUser } = useAuth();
     const { theme, themeMode, setThemeMode } = useTheme();
+    const styles = getSettingsScreenStyles(theme);
 
     const [name, setName] = useState(user?.name || '');
     const [loading, setLoading] = useState(false);
@@ -27,6 +22,7 @@ export default function SettingsScreen({ route }) {
         try {
             const result = await apiCall('updateProfile', { userId: user?.id, name });
             if (result.status === 'success') {
+                updateUser({ name });
                 Alert.alert('成功', '名稱已更新');
             } else {
                 Alert.alert('錯誤', result.message);
@@ -37,8 +33,6 @@ export default function SettingsScreen({ route }) {
             setLoading(false);
         }
     };
-
-    const styles = getStyles(theme);
 
     return (
         <View style={styles.container}>
@@ -90,58 +84,3 @@ export default function SettingsScreen({ route }) {
         </View>
     );
 }
-
-const getStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        padding: theme.spacing.m,
-    },
-    section: {
-        backgroundColor: theme.colors.card,
-        borderRadius: theme.borderRadius.m,
-        padding: theme.spacing.l,
-        marginBottom: theme.spacing.l,
-        ...theme.styles.shadow,
-    },
-    sectionTitle: {
-        ...theme.typography.h2,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.m,
-        fontSize: 20,
-    },
-    label: {
-        ...theme.typography.body,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.s,
-    },
-    inputGroup: {
-        marginTop: theme.spacing.m,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        borderRadius: theme.borderRadius.s,
-        padding: theme.spacing.s,
-        color: theme.colors.text,
-        marginBottom: theme.spacing.m,
-    },
-    button: {
-        backgroundColor: theme.colors.primary,
-        padding: theme.spacing.m,
-        borderRadius: theme.borderRadius.m,
-        alignItems: 'center',
-    },
-    buttonText: {
-        ...theme.typography.button,
-        color: '#fff',
-    },
-    row: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: theme.spacing.s,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-    },
-});

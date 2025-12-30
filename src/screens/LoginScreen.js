@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useTheme } from '../context/ThemeContext';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, Alert, Dimensions } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiCall } from '../api/sheetApi';
+import { Button, Input, Icon, Text } from '@rneui/themed';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import { getLoginScreenStyles } from '../styles/LoginScreenStyles';
 
 export default function LoginScreen({ navigation }) {
+    const { login } = useAuth();
     const { theme } = useTheme();
+    const styles = getLoginScreenStyles(theme);
     const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -18,12 +24,8 @@ export default function LoginScreen({ navigation }) {
         try {
             const result = await apiCall('login', { userId: userId.trim() });
             if (result.status === 'success') {
-                // Navigate to Main Tab, passing user down to HomeStack -> HomeMain
-                // We use reset to clear the Login screen from the stack so user can't go back to it
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Main', params: { user: result.user } }],
-                });
+                await login(result.user);
+                // Navigation handles switch automatically in App.js
             } else {
                 Alert.alert('登入失敗', result.message || 'ID 不存在');
             }
@@ -35,86 +37,53 @@ export default function LoginScreen({ navigation }) {
         }
     };
 
-    // Helper for generating styles
-    const styles = getStyles(theme);
-
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
         >
-            <View style={styles.card}>
-                <Text style={styles.title}>歡迎使用 (v2.0 Tab)</Text>
-                <Text style={styles.subtitle}>請輸入您的 ID 以登入</Text>
+            <View style={styles.contentContainer}>
+                <View style={styles.headerContainer}>
+                    <Icon
+                        name="school"
+                        type="ionicon"
+                        size={80}
+                        color={theme.colors.primary}
+                        containerStyle={styles.iconContainer}
+                    />
+                    <Text h2 style={styles.title}>智慧作業管理</Text>
+                    <Text style={styles.subtitle}>Smart Homework Manager</Text>
+                </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="User ID (e.g., T001, S123456)"
-                    placeholderTextColor={theme.colors.textSecondary}
-                    value={userId}
-                    onChangeText={setUserId}
-                    autoCapitalize="none"
-                />
+                <View style={styles.formContainer}>
+                    <Input
+                        placeholder="請輸入 User ID (例如: T001)"
+                        placeholderTextColor={theme.colors.textSecondary}
+                        inputStyle={{ color: theme.colors.text }}
+                        leftIcon={<Icon name="person-outline" type="ionicon" size={20} color={theme.colors.primary} />}
+                        value={userId}
+                        onChangeText={setUserId}
+                        autoCapitalize="none"
+                        containerStyle={styles.inputContainer}
+                        inputContainerStyle={styles.inputField}
+                    />
 
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={handleLogin}
-                    disabled={loading}
-                >
-                    {loading ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.buttonText}>登入</Text>
-                    )}
-                </TouchableOpacity>
+                    <Button
+                        title="進入系統"
+                        loading={loading}
+                        onPress={handleLogin}
+                        radius="lg"
+                        raised
+                        containerStyle={styles.buttonContainer}
+                        buttonStyle={styles.button}
+                        titleStyle={styles.buttonTitle}
+                        icon={<Icon name="arrow-forward" type="ionicon" size={20} color="white" style={{ marginLeft: 10 }} />}
+                        iconRight
+                    />
+                </View>
             </View>
         </KeyboardAvoidingView>
     );
 }
 
-const getStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        justifyContent: 'center',
-        padding: theme.spacing.l,
-    },
-    card: {
-        backgroundColor: theme.colors.card,
-        padding: theme.spacing.xl,
-        borderRadius: theme.borderRadius.l,
-        ...theme.styles.shadow,
-    },
-    title: {
-        ...theme.typography.h1,
-        color: theme.colors.text,
-        textAlign: 'center',
-        marginBottom: theme.spacing.s,
-    },
-    subtitle: {
-        ...theme.typography.body,
-        color: theme.colors.textSecondary,
-        textAlign: 'center',
-        marginBottom: theme.spacing.xl,
-    },
-    input: {
-        backgroundColor: theme.colors.background,
-        color: theme.colors.text,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        borderRadius: theme.borderRadius.m,
-        padding: theme.spacing.m,
-        fontSize: 16,
-        marginBottom: theme.spacing.l,
-    },
-    button: {
-        backgroundColor: theme.colors.primary,
-        padding: theme.spacing.m,
-        borderRadius: theme.borderRadius.m,
-        alignItems: 'center',
-    },
-    buttonText: {
-        ...theme.typography.button,
-        color: '#fff',
-    },
-});
+

@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
+import { getQuestionScreenStyles } from '../styles/QuestionScreenStyles';
+
 export default function QuestionScreen({ navigation }) {
     const { theme } = useTheme();
-    const styles = getStyles(theme);
+    const styles = getQuestionScreenStyles(theme);
     // Ideally we get studentId from Context/Global State.
     // We will hardcode or ask user to confirm ID for now since we don't have Context handy here.
     // Or we can grab it from hidden params if we passed user object deeply.
@@ -16,6 +19,38 @@ export default function QuestionScreen({ navigation }) {
     const [assignmentId, setAssignmentId] = useState('');
     const [question, setQuestion] = useState('');
     const [loading, setLoading] = useState(false);
+    const [studentId, setStudentId] = useState(null);
+    const [history, setHistory] = useState([]);
+
+    React.useEffect(() => {
+        loadUserAndHistory();
+    }, []);
+
+    const loadUserAndHistory = async () => {
+        try {
+            const userStr = await AsyncStorage.getItem('user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                setStudentId(user.id);
+                fetchHistory(user.id);
+            }
+        } catch (e) {
+            console.error('Failed to load user', e);
+        }
+    };
+
+    const fetchHistory = async (id) => {
+        try {
+            const res = await apiCall('getQuestions');
+            if (res.status === 'success') {
+                // Filter for this student
+                const myQuestions = res.questions.filter(q => q.studentId === id);
+                setHistory(myQuestions);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     const handleSend = async () => {
         if (!assignmentId.trim() || !question.trim()) {
@@ -23,18 +58,27 @@ export default function QuestionScreen({ navigation }) {
             return;
         }
 
+        if (!studentId) {
+            Alert.alert('錯誤', '無法取得學生ID，請重新登入');
+            return;
+        }
+
         setLoading(true);
         try {
-            // Using a hardcoded student ID fallback if not available
             const result = await apiCall('postQuestion', {
-                studentId: 'CURRENT_USER', // In real app, use Context
+                studentId: studentId,
                 assignmentId,
                 questionText: question
             });
 
             if (result.status === 'success') {
-                Alert.alert('成功', '問題已發送，老師將會收到通知。', [
-                    { text: 'OK', onPress: () => navigation.goBack() }
+                Alert.alert('成功', '問題已發送', [
+                    {
+                        text: 'OK', onPress: () => {
+                            setQuestion('');
+                            fetchHistory(studentId); // Refresh
+                        }
+                    }
                 ]);
             } else {
                 throw new Error(result.message);
@@ -45,6 +89,21 @@ export default function QuestionScreen({ navigation }) {
             setLoading(false);
         }
     };
+
+    const renderItem = ({ item }) => (
+        <View style={styles.historyItem}>
+            <View style={styles.historyHeader}>
+                <Text style={styles.historyTime}>{new Date(item.timestamp).toLocaleDateString()}</Text>
+                <Text style={[styles.statusBadge, { color: item.status === 'Answered' ? 'green' : 'orange' }]}>
+                    {item.status === 'Answered' ? '已回覆' : '待回覆'}
+                </Text>
+            </View>
+            <Text style={styles.qText}>Q: {item.questionText}</Text>
+            {item.answerText ? (
+                <Text style={styles.aText}>A: {item.answerText}</Text>
+            ) : null}
+        </View>
+    );
 
     return (
         <View style={styles.container}>
@@ -77,44 +136,15 @@ export default function QuestionScreen({ navigation }) {
                     <Text style={styles.buttonText}>送出問題</Text>
                 )}
             </TouchableOpacity>
+
+            <View style={styles.divider} />
+            <Text style={styles.historyTitle}>我的提問紀錄</Text>
+            <FlatList
+                data={history}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.list}
+            />
         </View>
     );
 }
-
-const getStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        padding: theme.spacing.l,
-    },
-    label: {
-        ...theme.typography.h2,
-        fontSize: 16,
-        marginBottom: theme.spacing.s,
-        color: theme.colors.text,
-    },
-    input: {
-        backgroundColor: theme.colors.card,
-        padding: theme.spacing.m,
-        borderRadius: theme.borderRadius.m,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-        marginBottom: theme.spacing.l,
-        fontSize: 16,
-        color: theme.colors.text,
-    },
-    textArea: {
-        height: 120,
-        textAlignVertical: 'top',
-    },
-    button: {
-        backgroundColor: theme.colors.primary,
-        padding: theme.spacing.m,
-        borderRadius: theme.borderRadius.m,
-        alignItems: 'center',
-    },
-    buttonText: {
-        ...theme.typography.button,
-        color: '#fff',
-    },
-});

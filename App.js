@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { ThemeProvider, useTheme } from './src/context/ThemeContext';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -20,9 +21,13 @@ import AssignmentListScreen from './src/screens/AssignmentListScreen';
 import StatusDashboardScreen from './src/screens/StatusDashboardScreen';
 import ScannerScreen from './src/screens/ScannerScreen';
 import ResultScreen from './src/screens/ResultScreen';
+import EditAssignmentScreen from './src/screens/EditAssignmentScreen';
 // Student
 import StudentAssignmentListScreen from './src/screens/StudentAssignmentListScreen';
 import QuestionScreen from './src/screens/QuestionScreen';
+import GivePointsScreen from './src/screens/GivePointsScreen';
+import ContactBookScreen from './src/screens/ContactBookScreen';
+import AnalysisScreen from './src/screens/AnalysisScreen';
 
 // Icons
 import { Ionicons } from '@expo/vector-icons';
@@ -36,6 +41,7 @@ const Drawer = createDrawerNavigator();
 function HomeStack({ navigation, route }) {
   const { user } = route.params || {}; // Pass user down
   const { theme } = useTheme();
+  const { logout } = useAuth();
 
   // Helper for Burger Menu
   const MenuButton = () => (
@@ -47,7 +53,7 @@ function HomeStack({ navigation, route }) {
   // Helper for Logout Button
   const LogoutButton = () => (
     <TouchableOpacity
-      onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Login' }] })}
+      onPress={logout}
       style={{ marginRight: 15 }}
     >
       <Ionicons name="log-out-outline" size={24} color="#fff" />
@@ -80,6 +86,9 @@ function HomeStack({ navigation, route }) {
       <Stack.Screen name="CreateAssignment" component={CreateAssignmentScreen} options={{ title: '新增作業' }} />
       <Stack.Screen name="AssignmentList" component={AssignmentListScreen} options={{ title: '選擇作業' }} />
       <Stack.Screen name="StatusDashboard" component={StatusDashboardScreen} options={{ title: '繳交狀態' }} />
+
+      <Stack.Screen name="GivePoints" component={GivePointsScreen} options={{ title: '獎勵集點' }} />
+      <Stack.Screen name="ContactBook" component={ContactBookScreen} options={{ title: '電子聯絡簿' }} />
       {/* Student Routes */}
       <Stack.Screen name="StudentAssignmentList" component={StudentAssignmentListScreen} options={{ title: '我的作業' }} />
       <Stack.Screen name="Question" component={QuestionScreen} options={{ title: '提出問題' }} />
@@ -110,7 +119,15 @@ function MainTabs({ route }) {
         tabBarInactiveTintColor: theme.colors.tabBarInactive,
         tabBarStyle: {
           backgroundColor: theme.colors.tabBar,
-          borderTopColor: theme.colors.border,
+          borderTopColor: 'transparent',
+          elevation: 5,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+          height: 60,
+          paddingBottom: 5,
+          paddingTop: 5,
         },
         headerShown: false, // Stack header handles title
       })}
@@ -167,15 +184,64 @@ function DrawerGroup({ route }) {
           drawerIcon: ({ color, size }) => <Ionicons name="notifications" size={size} color={color} />
         }}
       />
+
+      <Drawer.Screen
+        name="ContactBookDrawer"
+        component={ContactBookScreen}
+        initialParams={{ user }}
+        options={{
+          title: '電子聯絡簿',
+          headerShown: true,
+          headerStyle: { backgroundColor: theme.colors.primary },
+          headerTintColor: '#fff',
+          drawerIcon: ({ color, size }) => <Ionicons name="book" size={size} color={color} />
+        }}
+      />
+
+      <Drawer.Screen
+        name="AnalysisDrawer"
+        component={AnalysisScreen}
+        initialParams={{ user }}
+        options={{
+          title: '學習分析',
+          headerShown: true,
+          headerStyle: { backgroundColor: theme.colors.primary },
+          headerTintColor: '#fff',
+          drawerIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />
+        }}
+      />
+
+      {user?.role === 'teacher' && (
+        <Drawer.Screen
+          name="EditAssignment"
+          component={EditAssignmentScreen}
+          initialParams={{ user }}
+          options={{
+            title: '修改作業說明',
+            headerShown: true,
+            headerStyle: { backgroundColor: theme.colors.primary },
+            headerTintColor: '#fff',
+            drawerIcon: ({ color, size }) => <Ionicons name="create" size={size} color={color} />
+          }}
+        />
+      )}
     </Drawer.Navigator>
   );
 }
 
 function RootNavigator() {
   const { theme, themeMode } = useTheme();
+  const { user, loading } = useAuth(); // Persistent User
+
+  if (loading) return null; // Or a splash screen
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      onStateChange={(state) => {
+        const routeName = state?.routes[state.index]?.name;
+        console.log(`[ACTION] Navigation to Screen: ${routeName}`);
+      }}
+    >
       {/* Dynamic Status Bar - Safety check for theme */}
       <StatusBar
         style={themeMode === 'dark' ? 'light' : 'dark'}
@@ -183,8 +249,15 @@ function RootNavigator() {
       />
 
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Main" component={DrawerGroup} />
+        {!user ? (
+          <Stack.Screen name="Login" component={LoginScreen} />
+        ) : (
+          <Stack.Screen
+            name="Main"
+            component={DrawerGroup}
+            initialParams={{ user }}
+          />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -192,8 +265,10 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <RootNavigator />
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider>
+        <RootNavigator />
+      </ThemeProvider>
+    </AuthProvider>
   );
 }

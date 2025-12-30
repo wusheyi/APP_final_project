@@ -1,26 +1,27 @@
 export const lightTheme = {
     dark: false,
     colors: {
-        primary: '#4F46E5', // Indigo 600
-        secondary: '#10B981', // Emerald 500
-        background: '#F9FAFB', // Gray 50
+        primary: '#6C63FF', // Vibrant Purple-Blue (Modern EdTech)
+        secondary: '#00C9A7', // Teal Green
+        background: '#F8F9FE', // Bright Blue-ish White
         card: '#FFFFFF',
-        text: '#111827', // Gray 900
-        textSecondary: '#6B7280', // Gray 500
-        border: '#E5E7EB', // Gray 200
-        error: '#EF4444', // Red 500
-        success: '#10B981', // Emerald 500
+        text: '#2D3748', // Dark Slate
+        textSecondary: '#718096', // Slate 500
+        border: '#E2E8F0', // Slate 200
+        error: '#FC8181', // Soft Red
+        success: '#68D391', // Soft Green
+        warning: '#F6AD55', // Orange
         tabBar: '#FFFFFF',
-        tabBarActive: '#4F46E5',
-        tabBarInactive: '#9CA3AF',
+        tabBarActive: '#6C63FF',
+        tabBarInactive: '#CBD5E0',
     },
     styles: {
         shadow: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
+            shadowColor: '#6C63FF', // Colored shadow
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 12,
+            elevation: 5,
         }
     }
 };
@@ -28,26 +29,27 @@ export const lightTheme = {
 export const darkTheme = {
     dark: true,
     colors: {
-        primary: '#6366F1', // Indigo 500 (lighter for dark mode)
-        secondary: '#34D399', // Emerald 400
-        background: '#1F2937', // Gray 800
-        card: '#374151', // Gray 700
-        text: '#F9FAFB', // Gray 50
-        textSecondary: '#9CA3AF', // Gray 400
-        border: '#4B5563', // Gray 600
-        error: '#F87171', // Red 400
-        success: '#34D399', // Emerald 400
-        tabBar: '#111827', // Gray 900
-        tabBarActive: '#6366F1',
-        tabBarInactive: '#6B7280',
+        primary: '#8B85FF', // Lighter Purple
+        secondary: '#4FD1C5', // Teal 400
+        background: '#1A202C', // Gray 900
+        card: '#2D3748', // Gray 800
+        text: '#F7FAFC', // Gray 50
+        textSecondary: '#A0AEC0', // Gray 400
+        border: '#4A5568', // Gray 700
+        error: '#FC8181',
+        success: '#68D391',
+        warning: '#F6AD55',
+        tabBar: '#2D3748',
+        tabBarActive: '#8B85FF',
+        tabBarInactive: '#718096',
     },
     styles: {
         shadow: {
             shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.3, // Stronger shadow for dark mode
-            shadowRadius: 4,
-            elevation: 3,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 5,
         }
     }
 };
@@ -56,23 +58,25 @@ export const darkTheme = {
 export const commonStyles = {
     spacing: {
         xs: 4,
-        s: 8,
+        s: 10,  // Increased slightly
         m: 16,
         l: 24,
         xl: 32,
+        xxl: 48,
     },
     borderRadius: {
-        s: 4,
-        m: 8,
-        l: 12,
-        xl: 16,
+        s: 8,   // Softer corners
+        m: 16,
+        l: 24,
+        xl: 32,
         full: 9999,
     },
     typography: {
-        h1: { fontSize: 32, fontWeight: '700' },
-        h2: { fontSize: 24, fontWeight: '600' },
-        body: { fontSize: 16 },
-        caption: { fontSize: 14 },
-        button: { fontSize: 16, fontWeight: '600' },
+        h1: { fontSize: 28, fontWeight: '800', letterSpacing: 0.5 },
+        h2: { fontSize: 22, fontWeight: '700', letterSpacing: 0.25 },
+        h3: { fontSize: 18, fontWeight: '600' },
+        body: { fontSize: 16, lineHeight: 24, fontWeight: '400' },
+        caption: { fontSize: 13, lineHeight: 18, fontWeight: '500' },
+        button: { fontSize: 16, fontWeight: '700', letterSpacing: 1 },
     },
 };

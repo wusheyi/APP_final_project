@@ -3,8 +3,11 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, 
 import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
+import { getTeacherQnAScreenStyles } from '../styles/TeacherQnAScreenStyles';
+
 export default function TeacherQnAScreen() {
     const { theme } = useTheme();
+    const styles = getTeacherQnAScreenStyles(theme);
     const [questions, setQuestions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -69,8 +72,6 @@ export default function TeacherQnAScreen() {
             setSubmitting(false);
         }
     };
-
-    const styles = getStyles(theme);
 
     const renderItem = ({ item }) => (
         <View style={styles.card}>
@@ -141,34 +142,3 @@ export default function TeacherQnAScreen() {
         </View>
     );
 }
-
-const getStyles = (theme) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: theme.colors.background },
-    centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-    list: { padding: theme.spacing.m },
-    card: { backgroundColor: theme.colors.card, padding: theme.spacing.l, borderRadius: 8, marginBottom: 12, ...theme.styles.shadow },
-    row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-    qId: { fontWeight: 'bold', color: theme.colors.textSecondary },
-    status: { fontWeight: 'bold', fontSize: 12 },
-    statusOpen: { color: theme.colors.error },
-    statusClosed: { color: theme.colors.success },
-    assignment: { fontSize: 12, color: theme.colors.textSecondary, marginBottom: 8 },
-    qText: { fontSize: 16, marginBottom: 12, color: theme.colors.text },
-    answerBox: { backgroundColor: theme.dark ? '#333' : '#f0f0f0', padding: 8, borderRadius: 4, marginBottom: 8 },
-    aText: { color: theme.colors.primary },
-    replyButton: { backgroundColor: theme.colors.secondary, padding: 8, borderRadius: 4, alignSelf: 'flex-start', marginBottom: 8 },
-    replyButtonText: { color: '#fff', fontSize: 12 },
-    time: { fontSize: 10, color: theme.colors.textSecondary, textAlign: 'right' },
-    empty: { textAlign: 'center', marginTop: 20, color: theme.colors.textSecondary },
-
-    // Modal
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
-    modalContent: { backgroundColor: theme.colors.card, padding: 20, borderRadius: 12 },
-    modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, color: theme.colors.text },
-    modalQ: { marginBottom: 20, fontStyle: 'italic', color: theme.colors.textSecondary },
-    input: { borderWidth: 1, borderColor: theme.colors.border, borderRadius: 8, padding: 10, height: 100, textAlignVertical: 'top', marginBottom: 20, color: theme.colors.text },
-    modalButtons: { flexDirection: 'row', justifyContent: 'flex-end' },
-    cancelBtn: { padding: 10, marginRight: 10 },
-    submitBtn: { backgroundColor: theme.colors.primary, padding: 10, borderRadius: 8, width: 80, alignItems: 'center' },
-    btnText: { color: theme.colors.text, fontWeight: 'bold' }
-});
