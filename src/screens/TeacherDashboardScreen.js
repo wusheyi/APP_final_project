@@ -7,6 +7,7 @@ import { Text, Card, Button, Icon, Avatar, ListItem, Badge } from '@rneui/themed
 import { getTeacherDashboardScreenStyles } from '../styles/TeacherDashboardScreenStyles';
 import { useTheme } from '../context/ThemeContext';
 
+// 教師主頁面。顯示教師的概況和功能選項。
 export default function TeacherDashboardScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getTeacherDashboardScreenStyles(theme);

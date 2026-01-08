@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
 import { getGivePointsScreenStyles } from '../styles/GivePointsScreenStyles';
-
+// 賦予點數頁面。教師可在此給予學生點數。
 export default function GivePointsScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getGivePointsScreenStyles(theme);
@@ -14,7 +14,6 @@ export default function GivePointsScreen({ navigation }) {
     const [reason, setReason] = useState('表現良好');
     const [loading, setLoading] = useState(false);
 
-    // Student Selector Logic
     const [mode, setMode] = useState('select'); // 'select' or 'input'
     const [students, setStudents] = useState([]);
     const [loadingStudents, setLoadingStudents] = useState(false);
@@ -158,7 +157,6 @@ export default function GivePointsScreen({ navigation }) {
                 </TouchableOpacity>
             </View>
 
-            {/* User Selection Modal */}
             <Modal
                 visible={modalVisible}
                 animationType="slide"

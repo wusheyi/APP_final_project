@@ -4,7 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 import { apiCall } from '../api/sheetApi';
 
 import { getAssignmentListScreenStyles } from '../styles/AssignmentListScreenStyles';
-
+// 作業列表頁面。展示所有歷史與現有作業，支援日期篩選與繳交狀態概覽。
 export default function AssignmentListScreen({ navigation }) {
     const { theme } = useTheme();
     const [assignments, setAssignments] = useState([]);

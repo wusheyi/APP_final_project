@@ -6,6 +6,7 @@ import { apiCall } from '../api/sheetApi';
 
 import { getScannerScreenStyles } from '../styles/ScannerScreenStyles';
 
+// QRcode掃描頁面。教師可在此掃描 QRcode。
 export default function ScannerScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getScannerScreenStyles(theme);
@@ -13,13 +14,10 @@ export default function ScannerScreen({ navigation }) {
     const [scanned, setScanned] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // Safety: Don't auto-start camera on emulator/simulator to prevent crashes
     const [isCameraActive, setCameraActive] = useState(false);
 
-    // Manual Input State
     const [manualJson, setManualJson] = useState('{"studentId": "S123456"}');
 
-    // Assignment Selection State
     const [assignments, setAssignments] = useState([]);
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [showAssignmentModal, setShowAssignmentModal] = useState(false);
@@ -34,11 +32,9 @@ export default function ScannerScreen({ navigation }) {
             try {
                 const result = await apiCall('getAssignments');
                 if (result.status === 'success') {
-                    // Filter active assignments and sort by deadline (closest first)
                     const sorted = result.assignments.sort((a, b) => {
                         if (!a.endDate) return 1;
                         if (!b.endDate) return -1;
-                        // Assuming endDate is YYYY-MM-DD
                         return a.endDate.localeCompare(b.endDate);
                     });
                     setAssignments(sorted);
@@ -55,14 +51,17 @@ export default function ScannerScreen({ navigation }) {
         fetchAssignments();
     }, []);
 
+    const [scanResult, setScanResult] = useState(null);
+
     const handleBarCodeScanned = async ({ type, data }) => {
+        if (scanned) return;
         setScanned(true);
-        setCameraActive(false); // Stop camera processing
         processSubmission(data);
     };
 
     const processSubmission = async (dataString) => {
         setLoading(true);
+        setScanResult(null);
         try {
             let parsedData;
             try {
@@ -71,11 +70,9 @@ export default function ScannerScreen({ navigation }) {
                 throw new Error('QR Code 格式錯誤，請確認是否為本系統專用 QR Code。');
             }
 
-            // New logic: Check if we need to merge with selected assignment
             let finalStudentId = parsedData.studentId;
             let finalAssignmentId = parsedData.assignmentId;
 
-            // If QR is reusable (only has studentId) or we want to override/fallback
             if (!finalAssignmentId) {
                 if (!selectedAssignment) {
                     throw new Error('QR Code 未指定作業，且尚未選擇目前作業。請先選擇作業。');
@@ -93,26 +90,41 @@ export default function ScannerScreen({ navigation }) {
             });
 
             if (result.status === 'success') {
-                navigation.navigate('Result', {
+                setScanResult({
                     success: true,
-                    message: result.message,
-                    details: `學生: ${finalStudentId}\n作業: ${finalAssignmentId}`
+                    message: `${finalStudentId} 繳交成功！`,
+                    details: `作業: ${finalAssignmentId}`
                 });
             } else {
                 throw new Error(result.message || '未知錯誤');
             }
 
         } catch (error) {
-            navigation.navigate('Result', {
+            setScanResult({
                 success: false,
                 message: '提交失敗',
                 details: error.message
             });
         } finally {
             setLoading(false);
-            setScanned(false);
+            setTimeout(() => {
+                if (setScanResult) {
+                }
+            }, 500);
         }
     };
+
+    useEffect(() => {
+        let timer;
+        if (scanResult && scanResult.success) {
+            timer = setTimeout(() => {
+                setScanResult(null);
+                setScanned(false);
+            }, 1500);
+        }
+        return () => clearTimeout(timer);
+    }, [scanResult]);
+
 
     const renderAssignmentModal = () => (
         <Modal
@@ -163,7 +175,6 @@ export default function ScannerScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            {/* Camera View - Only active when user requested */}
             {isCameraActive && hasPermission && (
                 <View style={StyleSheet.absoluteFillObject}>
                     <CameraView
@@ -186,12 +197,10 @@ export default function ScannerScreen({ navigation }) {
                 </View>
             )}
 
-            {/* Main UI (Visible when camera is off) */}
             {!isCameraActive && (
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>掃描作業 QR Code</Text>
 
-                    {/* Assignment Selector */}
                     <View style={styles.selectorContainer}>
                         <Text style={styles.label}>目前作業:</Text>
                         <TouchableOpacity
@@ -214,7 +223,7 @@ export default function ScannerScreen({ navigation }) {
                         <Text style={styles.mainButtonText}>📷 開啟相機掃描</Text>
                     </TouchableOpacity>
 
-                    <Text style={styles.divider}>或手動輸入 JSON (測試用)</Text>
+                    <Text style={styles.divider}>或手動輸入</Text>
 
                     <TextInput
                         style={styles.webInput}
@@ -233,7 +242,6 @@ export default function ScannerScreen({ navigation }) {
                 </View>
             )}
 
-            {/* Render Modal */}
             {renderAssignmentModal()}
 
             {loading && (
@@ -241,6 +249,27 @@ export default function ScannerScreen({ navigation }) {
                     <ActivityIndicator size="large" color={theme.colors.primary} />
                     <Text style={styles.loadingText}>正在處理...</Text>
                 </View>
+            )}
+
+            {scanResult && (
+                <TouchableOpacity
+                    activeOpacity={0.9}
+                    style={[
+                        styles.resultOverlay,
+                        { backgroundColor: scanResult.success ? 'rgba(16, 185, 129, 0.9)' : 'rgba(239, 68, 68, 0.9)' }
+                    ]}
+                    onPress={() => {
+                        setScanResult(null);
+                        setScanned(false);
+                    }}
+                >
+                    <View style={styles.resultContent}>
+                        <Text style={styles.resultIcon}>{scanResult.success ? '✓' : '✕'}</Text>
+                        <Text style={styles.resultTitle}>{scanResult.message}</Text>
+                        <Text style={styles.resultDetails}>{scanResult.details}</Text>
+                        {!scanResult.success && <Text style={styles.tapToDismiss}>(點擊關閉)</Text>}
+                    </View>
+                </TouchableOpacity>
             )}
         </View>
     );

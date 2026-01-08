@@ -6,6 +6,7 @@ import { Text, Card, Badge, Icon, Divider, Button } from '@rneui/themed';
 import { useTheme } from '../context/ThemeContext';
 import { getStudentAssignmentListScreenStyles } from '../styles/StudentAssignmentListScreenStyles';
 
+// 學生作業列表頁。顯示學生所有作業的列表，包括作業名稱、描述、截止日期、狀態等信息。
 export default function StudentAssignmentListScreen({ route, navigation }) {
     const { theme } = useTheme();
     const styles = getStudentAssignmentListScreenStyles(theme);

@@ -8,12 +8,12 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { getAnalysisScreenStyles } from '../styles/AnalysisScreenStyles';
 
+// 學習分析頁面。以視覺化統計呈現學生的作業繳交率與累積獎勵點數趨勢。
 export default function AnalysisScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getAnalysisScreenStyles(theme);
     const { user } = useAuth();
 
-    // Safety check for logout transition
     if (!user) return null;
 
     const isTeacher = user.role === 'teacher';
@@ -26,7 +26,7 @@ export default function AnalysisScreen({ navigation }) {
     // Teacher Data
     const [classStats, setClassStats] = useState(null);
     const [studentList, setStudentList] = useState([]);
-    const [selectedStudent, setSelectedStudent] = useState(null); // For Teacher viewing specific student
+    const [selectedStudent, setSelectedStudent] = useState(null);
 
     useFocusEffect(
         useCallback(() => {
@@ -69,16 +69,15 @@ export default function AnalysisScreen({ navigation }) {
 
     const handleSelectStudent = (student) => {
         setSelectedStudent(student);
-        fetchStudentStats(student.id); // Fetch detailed stats for selected student
+        fetchStudentStats(student.id);
     };
 
     const handleBackToOverview = () => {
         setSelectedStudent(null);
         setStudentStats(null);
-        fetchClassStats(); // Refresh overview
+        fetchClassStats();
     };
 
-    // Sub-components
     const renderStatsView = (stats, title) => {
         if (!stats) return <ActivityIndicator size="large" color={theme.colors.primary} />;
 
@@ -181,7 +180,6 @@ export default function AnalysisScreen({ navigation }) {
         );
     };
 
-    // Main Render
     if (loading && !studentStats && !classStats) {
         return <View style={styles.centered}><ActivityIndicator size="large" color={theme.colors.primary} /></View>;
     }

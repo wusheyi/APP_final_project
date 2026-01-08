@@ -189,10 +189,8 @@ const mockApiCall = async (action, data) => {
 
 
 export const apiCall = async (action, payload = {}) => {
-    // Log the API Request Action
     console.log(`[ACTION] API Request: ${action}`, payload);
 
-    // Force Mock on Web to avoid CORS with Google Apps Script
     const isWeb = Platform.OS === 'web';
     const isGoogleScript = API_URL && API_URL.includes('script.google.com');
 

@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 import { getSettingsScreenStyles } from '../styles/SettingsScreenStyles';
 
+// 設定頁面。可在此修改個人資料和外觀設定。
 export default function SettingsScreen({ route }) {
     const { user, updateUser } = useAuth();
     const { theme, themeMode, setThemeMode } = useTheme();

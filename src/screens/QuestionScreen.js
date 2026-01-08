@@ -6,15 +6,10 @@ import { apiCall } from '../api/sheetApi';
 
 import { getQuestionScreenStyles } from '../styles/QuestionScreenStyles';
 
+// 提問頁面。學生可在此提出問題。
 export default function QuestionScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getQuestionScreenStyles(theme);
-    // Ideally we get studentId from Context/Global State.
-    // We will hardcode or ask user to confirm ID for now since we don't have Context handy here.
-    // Or we can grab it from hidden params if we passed user object deeply.
-    // To keep it simple, let's assume 'S123456' or ask for it.
-    // Better UX: passed `user` prop all the way or store in AsyncStorage.
-    // For this prototype, I'll add an input for StudentID auto-filled if available in a real app logic.
 
     const [assignmentId, setAssignmentId] = useState('');
     const [question, setQuestion] = useState('');
@@ -76,7 +71,7 @@ export default function QuestionScreen({ navigation }) {
                     {
                         text: 'OK', onPress: () => {
                             setQuestion('');
-                            fetchHistory(studentId); // Refresh
+                            fetchHistory(studentId); 
                         }
                     }
                 ]);
@@ -107,7 +102,7 @@ export default function QuestionScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>相關作業 ID (例如 HW01):</Text>
+            <Text style={styles.label}>標題:</Text>
             <TextInput
                 style={styles.input}
                 value={assignmentId}

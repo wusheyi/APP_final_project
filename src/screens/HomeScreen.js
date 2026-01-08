@@ -7,8 +7,9 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { getHomeScreenStyles } from '../styles/HomeScreenStyles';
 
+// 首頁。教師可在此查看今日作業概況，學生可在此查看我的獎勵點數。
 export default function HomeScreen({ navigation, route }) {
-    const { user } = route.params; // Expect user to be passed
+    const { user } = route.params; 
     const isTeacher = user.role === 'teacher';
     const { theme } = useTheme();
 
@@ -16,7 +17,6 @@ export default function HomeScreen({ navigation, route }) {
     const [points, setPoints] = useState(0);    // For students
     const [loading, setLoading] = useState(false);
 
-    // Feature Lists
     const teacherMenu = [
         { title: '新增作業', route: 'CreateAssignment', icon: 'add-circle', color: '#6C63FF' },
         { title: '批改作業', route: 'AssignmentList', icon: 'list', color: '#00C9A7' },
@@ -24,7 +24,6 @@ export default function HomeScreen({ navigation, route }) {
         { title: '學生問答', route: 'TeacherQnA', icon: 'chatbubbles', color: '#F6AD55' },
         { title: '給予獎勵', route: 'GivePoints', icon: 'star', color: '#F59E0B' },
         { title: '電子聯絡簿', route: 'ContactBook', icon: 'book', color: '#4299E1' },
-        // Analysis moved to Widget
     ];
 
     const studentMenu = [
@@ -36,7 +35,6 @@ export default function HomeScreen({ navigation, route }) {
 
     const menuItems = isTeacher ? teacherMenu : studentMenu;
 
-    // Fetch Data
     const fetchData = async () => {
         setLoading(true);
         try {
@@ -157,8 +155,8 @@ export default function HomeScreen({ navigation, route }) {
                             <View style={[
                                 styles.iconCircle,
                                 {
-                                    backgroundColor: item.color + '15', // Transparent fill
-                                    borderColor: item.color,          // Stroke effect
+                                    backgroundColor: item.color + '15',
+                                    borderColor: item.color,
                                     borderWidth: 2
                                 }
                             ]}>

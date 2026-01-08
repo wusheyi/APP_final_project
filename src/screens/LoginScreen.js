@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { getLoginScreenStyles } from '../styles/LoginScreenStyles';
 
+// 登入頁面。教師和學生可在此登入系統。
 export default function LoginScreen({ navigation }) {
     const { login } = useAuth();
     const { theme } = useTheme();
@@ -25,7 +26,6 @@ export default function LoginScreen({ navigation }) {
             const result = await apiCall('login', { userId: userId.trim() });
             if (result.status === 'success') {
                 await login(result.user);
-                // Navigation handles switch automatically in App.js
             } else {
                 Alert.alert('登入失敗', result.message || 'ID 不存在');
             }

@@ -6,13 +6,13 @@ import { apiCall } from '../api/sheetApi';
 
 import { getEditAssignmentScreenStyles } from '../styles/EditAssignmentScreenStyles';
 
+// 修改作業說明頁面。教師可在此修改作業的說明。
 export default function EditAssignmentScreen({ navigation }) {
     const { theme } = useTheme();
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
-    // Selection state
     const [selectedAssignment, setSelectedAssignment] = useState(null);
     const [newDescription, setNewDescription] = useState('');
 
@@ -23,7 +23,6 @@ export default function EditAssignmentScreen({ navigation }) {
         try {
             const res = await apiCall('getAssignments');
             if (res.status === 'success') {
-                // Sort by date descending
                 const sorted = res.assignments.sort((a, b) =>
                     new Date(b.startDate) - new Date(a.startDate)
                 );
@@ -64,7 +63,7 @@ export default function EditAssignmentScreen({ navigation }) {
             if (res.status === 'success') {
                 Alert.alert('成功', '作業說明已更新');
                 setSelectedAssignment(null);
-                fetchAssignments(); // Refresh list
+                fetchAssignments();
             } else {
                 Alert.alert('失敗', res.message);
             }

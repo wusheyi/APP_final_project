@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getResultScreenStyles } from '../styles/ResultScreenStyles';
 
+// QRcode掃描結果顯示頁面。
 export default function ResultScreen({ route, navigation }) {
     const { theme } = useTheme();
     const styles = getResultScreenStyles(theme);

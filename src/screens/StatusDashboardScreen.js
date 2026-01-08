@@ -6,6 +6,7 @@ import { BottomSheet, ListItem } from '@rneui/themed';
 
 import { getStatusDashboardScreenStyles } from '../styles/StatusDashboardScreenStyles';
 
+// 作業狀態管理頁面。教師可在此查看學生作業狀態並修改評分。
 export default function StatusDashboardScreen({ route }) {
     const { theme } = useTheme();
     const styles = getStatusDashboardScreenStyles(theme);

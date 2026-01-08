@@ -5,18 +5,8 @@ import { apiCall } from '../api/sheetApi';
 
 import { getNotificationScreenStyles } from '../styles/NotificationScreenStyles';
 
+// 通知頁面。教師可在此查看提問，學生可在此查看作業。
 export default function NotificationScreen({ navigation, route }) {
-    // We try to access user from route params. 
-    // In Drawer + Tab nesting, params might be deep. 
-    // Ideally we'd use a UserContext. For now, we'll try to get it safely or require re-login if missing.
-    // NOTE: In the refactored App.js, we must ensure 'user' flows down or is stored globally.
-    // For this implementation, we assume `route.params.user` is passed when navigating or defined in initialParams.
-
-    // Fallback: If no user in params, we might need to rely on the parent navigator's params or LocalStorage.
-    // To simplify: We'll assume the Dashboard passes user here or we look at Global State.
-    // Since we haven't implemented Global UserContext yet (only ThemeContext), 
-    // we will check `route.params?.user`.
-
     const { user } = route.params || {};
     const { theme } = useTheme();
     const styles = getNotificationScreenStyles(theme);
@@ -26,26 +16,18 @@ export default function NotificationScreen({ navigation, route }) {
     const [items, setItems] = useState([]);
 
     const fetchNotifications = async () => {
-        if (!user) return; // Should handle no-user case
+        if (!user) return;
 
         try {
             if (user.role === 'teacher') {
-                // Fetch Questions
                 const result = await apiCall('getQuestions');
                 if (result.status === 'success') {
-                    // Filter for "Open" status
                     const openQuestions = result.questions.filter(q => q.status === 'Open');
                     setItems(openQuestions);
                 }
             } else {
-                // Student: Fetch Assignments
-                // We'll show assignments starting in the last 7 days as "New"
                 const result = await apiCall('getAssignments');
                 if (result.status === 'success') {
-                    // Simple logic: Show all active assignments, highlight new ones
-                    // For "Notification" purpose, let's just show assignments that are 'active' (not ended long ago)
-                    // Or simply duplicate the list for now.
-                    // Better: Show assignments where startDate is recent.
                     setItems(result.assignments);
                 }
             }
@@ -72,14 +54,9 @@ export default function NotificationScreen({ navigation, route }) {
 
     const renderItem = ({ item }) => {
         if (user.role === 'teacher') {
-            // Render Question Item
             return (
                 <TouchableOpacity
                     style={styles.card}
-                    // Fix: Navigate to Dashboard -> HomeTab -> TeacherQnA (specifically QnA, not Dashboard generic)
-                    // If TeacherDashboard is the goal:
-                    // navigation.navigate('Dashboard', { screen: 'HomeTab', params: { screen: 'TeacherDashboard' } })
-                    // But here we likely want 'TeacherQnA'
                     onPress={() => navigation.navigate('Dashboard', {
                         screen: 'HomeTab',
                         params: { screen: 'TeacherQnA' }
@@ -95,11 +72,9 @@ export default function NotificationScreen({ navigation, route }) {
                 </TouchableOpacity>
             );
         } else {
-            // Render Assignment Item
             return (
                 <TouchableOpacity
                     style={styles.card}
-                    // Fix: Navigate to Dashboard -> HomeTab -> StudentAssignmentList
                     onPress={() => navigation.navigate('Dashboard', {
                         screen: 'HomeTab',
                         params: { screen: 'StudentAssignmentList', params: { user } }

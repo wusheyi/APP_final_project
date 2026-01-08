@@ -5,6 +5,7 @@ import { apiCall } from '../api/sheetApi';
 
 import { getTeacherQnAScreenStyles } from '../styles/TeacherQnAScreenStyles';
 
+// 題師問題回覆頁。顯示教師收到的學生問題列表，並提供回覆功能。
 export default function TeacherQnAScreen() {
     const { theme } = useTheme();
     const styles = getTeacherQnAScreenStyles(theme);

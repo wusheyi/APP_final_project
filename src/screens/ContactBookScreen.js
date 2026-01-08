@@ -5,13 +5,11 @@ import { apiCall } from '../api/sheetApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { getContactBookScreenStyles } from '../styles/ContactBookScreenStyles';
-
+// 電子聯絡簿。發布班級事項，並監控學生的電子簽名與回條狀態。
 export default function ContactBookScreen({ route, navigation }) {
     const { theme } = useTheme();
     const styles = getContactBookScreenStyles(theme);
 
-    // We can pass user role via params, or store it in context. 
-    // For now assuming we check "user" param or AsyncStorage
     const [user, setUser] = useState(route.params?.user || null);
 
     const isTeacher = user?.role === 'teacher';
@@ -22,7 +20,6 @@ export default function ContactBookScreen({ route, navigation }) {
     const [signing, setSigning] = useState(false);
 
     useEffect(() => {
-        // Fallback load user if not in params
         const init = async () => {
             if (!user) {
                 const u = await AsyncStorage.getItem('user');
@@ -36,8 +33,6 @@ export default function ContactBookScreen({ route, navigation }) {
     const fetchNote = async () => {
         setLoading(true);
         try {
-            // Fetch for "Student" view (needs studentId to check signature)
-            // Or "Teacher" just views latest
             const u = user || JSON.parse(await AsyncStorage.getItem('user'));
             const studentId = u?.role === 'student' ? u.id : null;
 

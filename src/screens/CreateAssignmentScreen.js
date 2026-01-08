@@ -7,10 +7,11 @@ import { Text, Icon, Button } from '@rneui/themed';
 
 import { getCreateAssignmentScreenStyles } from '../styles/CreateAssignmentScreenStyles';
 
+// 建立作業頁面。教師可在此設定作業的標題、開始與結束日期，並自動生成作業 ID。
 export default function CreateAssignmentScreen({ navigation }) {
     const { theme } = useTheme();
     const styles = getCreateAssignmentScreenStyles(theme);
-    const { user } = useAuth(); // Get current user (teacher)
+    const { user } = useAuth();
 
     const [assignmentId, setAssignmentId] = useState('');
     const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -18,11 +19,8 @@ export default function CreateAssignmentScreen({ navigation }) {
     const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // ... (rest of the component logic)
-
-    // Date Picker State
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [dateMode, setDateMode] = useState('start'); // 'start' or 'end'
+    const [dateMode, setDateMode] = useState('start'); 
     const [tempDate, setTempDate] = useState(new Date());
 
     const openDatePicker = (mode) => {
@@ -45,10 +43,8 @@ export default function CreateAssignmentScreen({ navigation }) {
             return;
         }
 
-        // Auto-generate Assignment ID based on Start Date + Time (HHMMSS) to avoid duplicates
-        // Format: HW20251230-143005
         const dateStr = startDate.replace(/-/g, '');
-        const timeStr = new Date().toTimeString().slice(0, 8).replace(/:/g, ''); // Includes seconds
+        const timeStr = new Date().toTimeString().slice(0, 8).replace(/:/g, '');
         const autoAssignmentId = `HW${dateStr}-${timeStr}`;
 
         setLoading(true);
@@ -74,10 +70,6 @@ export default function CreateAssignmentScreen({ navigation }) {
             setLoading(false);
         }
     };
-
-    // Custom Simple Date Selector Logic
-    // Using a simpler numeric input or scroller might be tedious to build from scratch.
-    // Let's make a simplified Year/Month/Day selector Modal.
 
     const DatePickerModal = () => {
         const adjustDate = (field, value) => {
